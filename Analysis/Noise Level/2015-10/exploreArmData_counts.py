@@ -14,7 +14,19 @@ import os
 pname = 'Data'
 fs1_Hz = 256.0
 fs2_Hz = 512.0
-data_set = 4
+#header_rows = 0
+adc_gain = 1.0
+delim = ','
+FFT_len_sec = 4.0
+
+pname3 = os.path.join(pname,'ExcludeFromGIT')
+#header_rows3 = 18
+adc_gain_3a = 1.0
+adc_gain_3b = 32.0
+FFT_len_sec_3 = 200.0
+#delim_3 = ' '
+
+data_set = 15
 if (data_set == 1):
     fs_Hz = fs1_Hz
     fname = 'Ganglion Data - Channels & Ref tied to DRL 01.csv';
@@ -45,9 +57,69 @@ elif (data_set == 4):
     fname = 'Ganglion Data - Channels & Ref teid to DRL 04.csv';
     sname = 'Ganglion, Chan+Ref to DRL, Test 4'
     inamp_gain = np.array([80.0, 80.0, 80.0, 80.0])  #assumed for his inamp      
-
-
-data_counts = np.genfromtxt (os.path.join(pname,fname), delimiter=",")
+elif (data_set == 11):
+    pname = pname3
+    #header_rows = header_rows3
+    fname = '10 min Log-Gain 1-256sps_01_WEA.csv';
+    sname = 'Ganglion, MCP Gain 1, 256Hz, Test 1'
+    fs_Hz = fs1_Hz
+    adc_gain = adc_gain_3a
+    #delim = delim_3
+    inamp_gain = np.array([80.0, 80.0, 80.0, 80.0])  #assumed for his inamp    
+    FFT_len_sec = FFT_len_sec_3
+elif (data_set == 12):
+    pname = pname3
+    #header_rows = header_rows3
+    fname = '10 min Log-Gain 1-512sps_01_WEA.csv';
+    sname = 'Ganglion, MCP Gain 1, 512Hz, Test 1'
+    fs_Hz = fs2_Hz
+    adc_gain = adc_gain_3a
+    #delim = delim_3
+    inamp_gain = np.array([80.0, 80.0, 80.0, 80.0])  #assumed for his inamp    
+    FFT_len_sec = FFT_len_sec_3
+elif (data_set == 13):
+    pname = pname3
+    #header_rows = header_rows3
+    fname = '10 min Log-Gain 1-512sps_02_WEA.csv';
+    sname = 'Ganglion, MCP Gain 1, 512Hz, Test 2'
+    fs_Hz = fs2_Hz
+    adc_gain = adc_gain_3a
+    #delim = delim_3
+    inamp_gain = np.array([80.0, 80.0, 80.0, 80.0])  #assumed for his inamp    
+    FFT_len_sec = FFT_len_sec_3    
+elif (data_set == 14):
+    pname = pname3
+    #header_rows = header_rows3
+    fname = '10 min Log-Gain 32-256sps_01_WEA.csv';
+    sname = 'Ganglion, MCP Gain 32, 256Hz, Test 1'
+    fs_Hz = fs1_Hz
+    adc_gain = adc_gain_3b
+    #delim = delim_3
+    inamp_gain = np.array([80.0, 80.0, 80.0, 80.0])  #assumed for his inamp    
+    FFT_len_sec = FFT_len_sec_3  
+elif (data_set == 14):
+    pname = pname3
+    #header_rows = header_rows3
+    fname = '10 min Log-Gain 32-256sps_01_WEA.csv';
+    sname = 'Ganglion, MCP Gain 32, 256Hz, Test 1'
+    fs_Hz = fs1_Hz
+    adc_gain = adc_gain_3b
+    #delim = delim_3
+    inamp_gain = np.array([80.0, 80.0, 80.0, 80.0])  #assumed for his inamp    
+    FFT_len_sec = FFT_len_sec_3       
+elif (data_set == 15):
+    pname = pname3
+    #header_rows = header_rows3
+    fname = '10 min Log-Gain 32-512sps_01_WEA.csv';
+    sname = 'Ganglion, MCP Gain 32, 512Hz, Test 1'
+    fs_Hz = fs2_Hz
+    adc_gain = adc_gain_3b
+    #delim = delim_3
+    inamp_gain = np.array([80.0, 80.0, 80.0, 80.0])  #assumed for his inamp    
+    FFT_len_sec = FFT_len_sec_3     
+    
+    
+data_counts = np.genfromtxt (os.path.join(pname,fname), delimiter=delim)
 #names = ['Chan 0', 'Chan 1']
 
 #keep only some of the data
@@ -72,7 +144,6 @@ if 0:
 
 # scale the data
 #scale_counts_to_uV = 3.0/(2.0**32) * 1.0e6 
-adc_gain = 1.0
 scale_counts_to_uV = 1e6 * (1.2) / (2**(24-1) * inamp_gain * adc_gain * 1.5)  #MCP3912 data sheet, plus gain of preceeding INAMP
 data_uV = data_counts * scale_counts_to_uV
 
@@ -146,7 +217,7 @@ for Ichan in range(nchan):
     #compute average spectrum
     #NFFT=128*2
     #NFFT = int(round(fs_Hz))
-    NFFT = int(4.0*fs_Hz)
+    NFFT = int(FFT_len_sec*fs_Hz)
     overlap = (7*NFFT) / 8
     foo_data = foo_data - np.mean(foo_data,0) # helps remove DC bleed into the low-freq bins
     PSDperHz, freqs, t = mlab.specgram(foo_data,
